@@ -1,11 +1,8 @@
-export CUDA_VISIBLE_DEVICES=7
-export CUDA_LAUNCH_BLOCKING=1
-
 dset_name=hl
 ctx_mode=video_tef
 v_feat_types=slowfast_clip
 t_feat_type=clip 
-results_root=path_to_save/qvhighlights_results
+results_root=results
 device=1
 enc_layers=3
 dec_layers=3
@@ -29,7 +26,7 @@ eval_path=data/highlight_val_release.jsonl
 eval_split_name=val
 
 ######## setup video+text features
-feat_root=path_to_qv_features/features
+feat_root=../features
 
 # video features
 v_feat_dim=0
@@ -55,8 +52,9 @@ fi
 #### training
 bsz=32
 
+gpu_num=1
 
-PYTHONPATH=$PYTHONPATH:. python uvcom/train.py \
+CUDA_VISIBLE_DEVICES=${gpu_num} PYTHONPATH=$PYTHONPATH:. python uvcom/train.py \
 --dset_name ${dset_name} \
 --ctx_mode ${ctx_mode} \
 --train_path ${train_path} \
@@ -68,7 +66,6 @@ PYTHONPATH=$PYTHONPATH:. python uvcom/train.py \
 --t_feat_dim ${t_feat_dim} \
 --bsz ${bsz} \
 --results_root ${results_root} \
---exp_id ${exp_id} \
 --device ${device} \
 --span_loss_type ${span_loss_type} \
 --lr ${lr} \
@@ -83,5 +80,38 @@ PYTHONPATH=$PYTHONPATH:. python uvcom/train.py \
 --em_iter 5 \
 --n_txt_mu ${n_txt_mu} \
 --n_visual_mu ${n_visual_mu} \
---neg_choose_epoch ${neg_choose_epoch}\
+--neg_choose_epoch ${neg_choose_epoch} \
+--exp_id opposite_verb \
+--query_json_file ../llama_query/2 \
 ${@:1}
+
+# CUDA_VISIBLE_DEVICES=${gpu_num} PYTHONPATH=$PYTHONPATH:. python uvcom/train.py \
+# --dset_name ${dset_name} \
+# --ctx_mode ${ctx_mode} \
+# --train_path ${train_path} \
+# --eval_path ${eval_path} \
+# --eval_split_name ${eval_split_name} \
+# --v_feat_dirs ${v_feat_dirs[@]} \
+# --v_feat_dim ${v_feat_dim} \
+# --t_feat_dir ${t_feat_dir} \
+# --t_feat_dim ${t_feat_dim} \
+# --bsz ${bsz} \
+# --results_root ${results_root} \
+# --device ${device} \
+# --span_loss_type ${span_loss_type} \
+# --lr ${lr} \
+# --num_queries ${query_num} \
+# --enc_layers ${enc_layers} \
+# --sim_loss_coef ${sim_loss_coef} \
+# --neg_loss_coef ${neg_loss_coef} \
+# --seed ${seed} \
+# --lr_gamma ${lr_gamma} \
+# --dec_layers ${dec_layers} \
+# --lr_drop ${lr_drop} \
+# --em_iter 5 \
+# --n_txt_mu ${n_txt_mu} \
+# --n_visual_mu ${n_visual_mu} \
+# --neg_choose_epoch ${neg_choose_epoch} \
+# --exp_id opposite_verb \
+# --train_t_feat_dir ../llama_query/2/features \
+# ${@:1}
